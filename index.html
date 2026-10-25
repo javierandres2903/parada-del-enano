@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>La Parada del Enano · Sabor y calidad en Yagua</title>
+<meta name="description" content="Parrillas, hamburguesas, perros calientes, shawarma y pepitos en Yagua. Mira el menú y haz tu pedido por WhatsApp. Pickup y delivery.">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alfa+Slab+One&family=Barlow:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="hero">
+  <img src="logo.png" alt="Logo de La Parada del Enano" width="150" height="150">
+  <h1>La Parada del Enano</h1>
+  <p>Sabor y calidad · La mejor comida de Yagua</p>
+  <div id="estado" class="estado" role="status"><i></i><span>Revisando horario…</span></div>
+  <p class="sub" id="prox"></p>
+  <div class="btns">
+    <a class="btn" href="#parrillas">Ver menú y pedir</a>
+    <a class="btn wa" id="waTop" href="#" target="_blank" rel="noopener">Hablar por WhatsApp</a>
+  </div>
+</header>
+
+<nav class="cats" id="cats" aria-label="Categorías del menú"></nav>
+
+<main>
+  <div id="menu"></div>
+
+  <section id="pago">
+    <h2>Pago móvil</h2>
+    <p class="nota">Escanea el QR del banco que prefieras o usa los datos. Después del pago, envía el comprobante por WhatsApp.</p>
+    <div class="pago">
+      <article><h3>Banco Exterior</h3><img src="qr-exterior.png" alt="Código QR de pago móvil, Banco Exterior" width="200" height="200" loading="lazy"><p>Cédula: 22.008.026<br>Teléfono: 0424 4372591</p></article>
+      <article><h3>Banesco</h3><img src="qr-banesco.png" alt="Código QR de pago móvil, Banesco" width="200" height="200" loading="lazy"><p>Cédula: 22.008.026<br>Teléfono: 0424 4372591</p></article>
+    </div>
+  </section>
+
+  <section id="horario">
+    <h2>Horario y ubicación</h2>
+    <div class="ubi">
+      <p><b>Lunes:</b> no laboramos</p>
+      <p><b>Martes y miércoles:</b> 5:00 PM – 12:00 AM</p>
+      <p><b>Jueves:</b> 5:00 PM – 1:00 AM</p>
+      <p><b>Viernes y sábados:</b> 5:00 PM – 2:00 AM</p>
+      <p><b>Domingos:</b> 5:00 PM – 12:30 AM</p>
+      <p style="margin-top:10px"><b>Dónde estamos:</b> Yagua. Pickup y delivery.</p>
+      <div class="btns" style="justify-content:flex-start">
+        <a class="btn map" href="https://www.google.com/maps/search/?api=1&query=La+Parada+del+Enano+Yagua" target="_blank" rel="noopener">📍 Ver en el mapa</a>
+        <a class="btn ig" href="https://instagram.com/la_parada_del_enano" target="_blank" rel="noopener">📸 Instagram</a>
+      </div>
+    </div>
+  </section>
+</main>
+<footer>© La Parada del Enano · Sabor y calidad</footer>
+
+<div id="barra"><div><b id="bn">0 productos</b><br><span id="bt">$0,00</span></div><button class="btn" id="abrir">Revisar y pedir</button></div>
+
+<dialog id="dlg">
+  <h2>Tu pedido</h2>
+  <div id="res"></div>
+  <label>Tu nombre<input id="nom" autocomplete="name"></label>
+  <label>¿Cómo lo quieres?<select id="mod"><option>Pickup (retiro en el local)</option><option>Delivery</option></select></label>
+  <label id="dirL" hidden>Dirección de entrega<textarea id="dir" rows="2"></textarea></label>
+  <label>Forma de pago<select id="pg"><option>Pago móvil (enviaré el comprobante)</option><option>Efectivo</option></select></label>
+  <label>Notas (opcional)<textarea id="not" rows="2" placeholder="Sin cebolla, salsas aparte…"></textarea></label>
+  <div class="fila"><button class="btn alt" id="cerrar" type="button">Seguir pidiendo</button><button class="btn wa" id="enviar" type="button">Enviar por WhatsApp</button></div>
+</dialog>
+
+<script>
+const TEL='584123219804';
+// Horario: [abre, cierra] en horas; cierra>24 = pasa de medianoche. 0=domingo
+const H={0:[17,24.5],1:null,2:[17,24],3:[17,24],4:[17,25],5:[17,26],6:[17,26]};
+const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+// Menú: id, título, nota, líneas "producto|precio|detalle"
+const DATA=[
+['parrillas','Parrillas','',`Parrilla pequeña|8|Carne, chorizo, cochino asado, chinchurria, yuca, salsa, ensalada, papas fritas
+Parrilla pequeña pollo|10|Carne, pollo, chorizo, cochino asado, chinchurria, yuca, salsa, ensalada, papas fritas
+Parrilla grande|13|Carne, pollo, chorizo, cochino asado, chinchurria, yuca, salsa, ensalada, papas fritas
+Parrilla full|16|Carne, pollo, camarón, chorizo, cochino asado, chinchurria, yuca, salsa, ensalada, aceitunas negras, champiñones, papas fritas
+Pequeña exclusiva carne|12|Carne, yuca, salsa, ensalada, papas fritas
+Grande exclusiva carne|15|Carne, yuca, salsa, ensalada, papas fritas
+Pequeña exclusiva pollo|12|Pollo, yuca, salsa, ensalada, papas fritas
+Grande exclusiva pollo|14|Pollo, yuca, salsa, ensalada, papas fritas
+Parrilla familiar|25|Con 7 tequeños y papas fritas`],
+['pollo','Pollo','Con ensalada dulce, salsa roja y papas fritas donde se indica.',`Broaster 4 unidades|8|Ensalada dulce, salsa roja, papas fritas
+Broaster 2 unidades|5|Ensalada dulce, salsa roja, papas fritas
+Alitas 10 unidades|6|Ensalada dulce, salsa roja, papas fritas
+Alitas 5 unidades|4|Ensalada dulce, salsa roja, papas fritas
+10 nuggets y 10 tequeños|7|
+5 nuggets y 5 tequeños|4|
+20 tequeños|4|`],
+['hamburguesas','Hamburguesas','',`Normal|6|Carne, jamón, queso, maíz, papas
+Especial|7|Carne, huevo, jamón, queso, maíz, papas
+Pollo|8|Pollo, jamón, queso, maíz, papas
+Pernil|8|Pernil, jamón, queso, maíz, papas
+Chuleta|8|Chuleta, jamón, queso, maíz, papas
+Carne a la parrilla|8|Carne a la parrilla, jamón, queso, maíz, papas
+Camarón|8,5|Camarones, jamón, queso, maíz, papas
+Pollo travieso|8,5|Huevo, jamón, queso, maíz, papas
+Doble carne|8,5|Doble carne, jamón, queso, maíz, papas
+A caballo|8,5|Pernil, huevo, jamón, queso, maíz, papas
+Doble pollo|9|Doble pollo, jamón, queso, maíz, papas
+Extra|9|Doble carne, huevo, jamón, queso, maíz, papas
+Doble chuleta|9|Doble chuleta, jamón, queso, maíz, papas
+Mixta 1|9|Carne, pollo, jamón, queso, maíz, papas
+Mixta 2|9|Carne, pernil, jamón, queso, maíz, papas
+Mixta 3|9|Pernil, pollo, jamón, queso, maíz, papas
+Mixta 4|9|Chuleta, carne, jamón, queso, maíz, papas
+Mixta 5|9|Camarones, pollo, pernil, jamón, queso, maíz, papas
+Pollo crispy|9|Pollo, jamón, queso, maíz, papas
+P1|9,5|Carne, pollo, huevo, jamón, queso, maíz, papas
+P2|9,5|Carne, pernil, huevo, jamón, queso, maíz, papas
+P3|9,5|Pernil, pollo, huevo, jamón, queso, maíz, papas
+P4|9,5|Chuleta, carne, huevo, jamón, queso, maíz, papas
+Full|11|Pernil, carne, pollo, huevo, jamón, maíz, queso, papas
+Extra full|12|Chuleta, pernil, carne, pollo, huevo, jamón, maíz, queso, papas`],
+['perros','Perros calientes','',`Normal|2|Repollo, cebolla, queso, salsas, papas
+Con huevo|2,8|Repollo, cebolla, huevo, queso, salsas, papas
+Especial|3,5|Jamón, queso, tocineta, repollo, cebolla, salsas, papas
+Salchicha polaca|3,5|Repollo, cebolla, queso, salsas, papas
+Colesterol|3,5|Repollo, cebolla, queso, full tocineta, salsas, papas
+Camarón|3,5|Camarón, salchicha, repollo, cebolla, queso, salsas, papas
+Pernil|4|Pernil, repollo, cebolla, jamón, queso, salsa, papas
+Carne|4|Carne, repollo, cebolla, jamón, queso, salsa, papas
+Pollo|4|Pollo, repollo, cebolla, jamón, queso, salsa, papas`],
+['shawarma','Shawarma','',`Pollo|7|Pollo, lechuga, tomate, jamón, queso, salsa, maíz, papas
+Carne|7|Carne, lechuga, tomate, jamón, queso, salsa, maíz, papas
+Pernil|7|Pernil, lechuga, tomate, jamón, queso, salsa, maíz, papas
+Carne parrilla|7|Carne a la parrilla, lechuga, tomate, jamón, queso, salsa, maíz, papas
+Mixto 1|8,5|Carne, pollo, lechuga, tomate, jamón, queso, salsa, maíz, papas
+Mixto 2|8,5|Carne, pernil, lechuga, tomate, jamón, queso, salsa, maíz, papas
+Mixto 3|8,5|Pernil, pollo, lechuga, tomate, jamón, queso, salsa, maíz, papas
+Full|10|Pernil, carne, pollo, jamón, queso, lechuga, tomate, maíz, papas`],
+['pepitos','Pepitos','',`Pepito pollo|13|Pollo, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Pepito carne|13|Carne, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Pepito pernil|13|Pernil, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Pepito mixto 1|16|Carne, pollo, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Pepito mixto 2|16|Carne, pernil, jamón, queso, lechuga, tomate, maíz, papas
+Pepito mixto 3|16|Pernil, pollo, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Pepito full|20|Pernil, carne, pollo, jamón, queso, lechuga, tomate, maíz, papas
+Mini pepito pollo|7|Pollo, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Mini pepito carne|7|Carne, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Mini pepito pernil|7|Pernil, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Mini pepito mixto 1|8|Carne, pollo, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Mini pepito mixto 2|8|Carne, pernil, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Mini pepito mixto 3|8|Pernil, pollo, jamón, queso, salsa, lechuga, tomate, maíz, papas
+Mini pepito full|10|Pernil, carne, pollo, jamón, queso, salsa, lechuga, tomate, maíz, papas`],
+['salchipapa','Salchipapas','',`Papas fritas|4|Papas fritas
+Salchipapa pequeña|6|Salchicha, papas, queso y salsa
+Salchipapa grande|7|Salchicha, papas, queso y salsa
+Salchipapa con pollo pequeña|6|Salchicha, pollo, papas, queso y salsa
+Salchipapa con pollo grande|8|Salchicha, pollo, papas, queso y salsa`],
+['bebidas','Bebidas','',`Agua|1,1|
+Malta|1,1|
+Refresco de botella|1,1|
+Nestea|2|
+Glup 1 L|1,5|
+Hit 1 L|1,8|
+Hit 1,5 L|2,7|
+Glup 2 L|2,4|
+Hit 2 L|3|`]
+];
+
+const $=s=>document.querySelector(s);
+const money=n=>'$'+n.toLocaleString('es',{minimumFractionDigits:2,maximumFractionDigits:2});
+const items=[];const cart={};
+
+// Pintar menú
+DATA.forEach(([id,t,nota,txt])=>{
+  let h=`<section id="${id}"><h2>${t}</h2>${nota?`<p class="nota">${nota}</p>`:''}<div class="lista">`;
+  txt.split('\n').forEach(l=>{
+    const [n,p,d]=l.split('|');const k=items.length;
+    items.push({n:t==='Hamburguesas'?'Hamburguesa '+n:t==='Perros calientes'?'Perro '+n:t==='Shawarma'?'Shawarma '+n:n,p:parseFloat(p.replace(',','.'))});
+    h+=`<div class="it"><div><b>${n}</b>${d?`<small>${d}</small>`:''}</div><span class="pr">${money(items[k].p)}</span><div class="q" data-k="${k}"><button data-d="-1" aria-label="Quitar ${n}">−</button><span id="c${k}">0</span><button data-d="1" aria-label="Agregar ${n}">+</button></div></div>`;
+  });
+  $('#menu').insertAdjacentHTML('beforeend',h+'</div></section>');
+  $('#cats').insertAdjacentHTML('beforeend',`<a href="#${id}">${t}</a>`);
+});
+
+// Carrito
+function total(){let c=0,t=0;for(const k in cart){c+=cart[k];t+=cart[k]*items[k].p}return[c,t]}
+function pintar(){const[c,t]=total();$('#bn').textContent=c+(c===1?' producto':' productos');$('#bt').textContent=money(t);$('#barra').classList.toggle('on',c>0)}
+$('#menu').addEventListener('click',e=>{
+  const b=e.target.closest('button');if(!b)return;
+  const k=b.parentNode.dataset.k;cart[k]=Math.max(0,(cart[k]||0)+ +b.dataset.d);
+  if(!cart[k])delete cart[k];$('#c'+k).textContent=cart[k]||0;pintar();
+});
+const dlg=$('#dlg');
+$('#abrir').onclick=()=>{
+  $('#res').innerHTML=Object.keys(cart).map(k=>`<p><span>${cart[k]} × ${items[k].n}</span><span>${money(cart[k]*items[k].p)}</span></p>`).join('')+`<p><b>Total</b><b>${money(total()[1])}</b></p>`;
+  dlg.showModal();
+};
+$('#cerrar').onclick=()=>dlg.close();
+$('#mod').onchange=e=>{$('#dirL').hidden=!e.target.value.startsWith('Delivery')};
+$('#enviar').onclick=()=>{
+  const delivery=$('#mod').value.startsWith('Delivery');
+  if(!$('#nom').value.trim()){$('#nom').focus();return}
+  if(delivery&&!$('#dir').value.trim()){$('#dir').focus();return}
+  let m=`Hola, quiero hacer un pedido en La Parada del Enano:\n\n`;
+  Object.keys(cart).forEach(k=>m+=`• ${cart[k]} × ${items[k].n} — ${money(cart[k]*items[k].p)}\n`);
+  m+=`\nTotal: ${money(total()[1])}\nNombre: ${$('#nom').value.trim()}\nEntrega: ${$('#mod').value}`;
+  if(delivery)m+=`\nDirección: ${$('#dir').value.trim()}`;
+  m+=`\nPago: ${$('#pg').value}`;
+  if($('#not').value.trim())m+=`\nNotas: ${$('#not').value.trim()}`;
+  window.open(`https://wa.me/${TEL}?text=${encodeURIComponent(m)}`,'_blank');
+};
+$('#waTop').href=`https://wa.me/${TEL}?text=${encodeURIComponent('Hola, quiero hacer un pedido en La Parada del Enano.')}`;
+
+// Abierto / cerrado (hora de Venezuela)
+function hora(h){h=h%24;const hh=Math.floor(h),mm=Math.round((h-hh)*60);return(hh%12||12)+':'+String(mm).padStart(2,'0')+' '+(hh>=12?'PM':'AM')}
+function estado(){
+  const n=new Date(new Date().toLocaleString('en-US',{timeZone:'America/Caracas'}));
+  const d=n.getDay(),h=n.getHours()+n.getMinutes()/60;
+  const hoy=H[d],ayer=H[(d+6)%7];
+  let abierto=false,cierra;
+  if(hoy&&h>=hoy[0]&&h<Math.min(hoy[1],24)){abierto=true;cierra=hoy[1]}
+  else if(ayer&&ayer[1]>24&&h<ayer[1]-24){abierto=true;cierra=ayer[1]}
+  const e=$('#estado');e.className='estado '+(abierto?'abierto':'cerrado');
+  if(abierto){e.lastChild.textContent='Abierto ahora';$('#prox').textContent='Cerramos a las '+hora(cierra);return}
+  e.lastChild.textContent='Cerrado ahora';
+  if(hoy&&h<hoy[0]){$('#prox').textContent='Abrimos hoy a las '+hora(hoy[0]);return}
+  for(let i=1;i<=7;i++){const x=(d+i)%7;if(H[x]){$('#prox').textContent='Abrimos '+(i===1?'mañana':'el '+DIAS[x])+' a las '+hora(H[x][0]);return}}
+}
+estado();setInterval(estado,60000);
+</script>
+</body>
+</html>
