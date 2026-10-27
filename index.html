@@ -65,7 +65,7 @@
   <label id="dirL" hidden>Dirección de entrega<textarea id="dir" rows="2"></textarea></label>
   <label>Forma de pago<select id="pg"><option>Pago móvil (enviaré el comprobante)</option><option>Efectivo</option></select></label>
   <label>Notas (opcional)<textarea id="not" rows="2" placeholder="Sin cebolla, salsas aparte…"></textarea></label>
-  <div class="fila"><button class="btn alt" id="cerrar" type="button">Seguir pidiendo</button><button class="btn wa" id="enviar" type="button">Enviar por WhatsApp</button></div>
+  <div class="fila"><button class="btn alt" id="cerrar" type="button">Volver al menú</button><button class="btn wa" id="enviar" type="button">Enviar por WhatsApp</button></div>
 </dialog>
 
 <script>
@@ -199,7 +199,11 @@ $('#res').addEventListener('click',e=>{
   const k=b.dataset.k;delete cart[k];$('#c'+k).textContent='0';pintar();pintarPedido();
 });
 $('#abrir').onclick=()=>{pintarPedido();dlg.showModal()};
-$('#cerrar').onclick=()=>dlg.close();
+$('#cerrar').onclick=()=>{
+  dlg.close();
+  $('#menu').scrollIntoView();
+  $('#menu .q button[data-d="1"]').focus({preventScroll:true});
+};
 $('#mod').onchange=e=>{$('#dirL').hidden=!e.target.value.startsWith('Delivery')};
 $('#enviar').onclick=()=>{
   if(!Object.keys(cart).length)return;
