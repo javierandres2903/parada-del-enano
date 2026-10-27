@@ -182,19 +182,27 @@ DATA.forEach(([id,t,nota,txt])=>{
 // Carrito
 function total(){let c=0,t=0;for(const k in cart){c+=cart[k];t+=cart[k]*items[k].p}return[c,t]}
 function pintar(){const[c,t]=total();$('#bn').textContent=c+(c===1?' producto':' productos');$('#bt').textContent=money(t);$('#barra').classList.toggle('on',c>0)}
+function pintarPedido(){
+  const keys=Object.keys(cart);
+  if(!keys.length){$('#res').innerHTML='<p>Tu carrito está vacío.</p>';$('#enviar').disabled=true;return}
+  $('#res').innerHTML=keys.map(k=>`<p class="pedido-item"><span>${cart[k]} × ${items[k].n}<br><small>${money(cart[k]*items[k].p)}</small></span><button class="quitar" type="button" data-k="${k}" aria-label="Eliminar ${items[k].n} del pedido">×</button></p>`).join('')+`<p class="pedido-total"><b>Total</b><b>${money(total()[1])}</b></p>`;
+  $('#enviar').disabled=false;
+}
 $('#menu').addEventListener('click',e=>{
   const b=e.target.closest('button');if(!b)return;
   const k=b.parentNode.dataset.k;cart[k]=Math.max(0,(cart[k]||0)+ +b.dataset.d);
   if(!cart[k])delete cart[k];$('#c'+k).textContent=cart[k]||0;pintar();
 });
 const dlg=$('#dlg');
-$('#abrir').onclick=()=>{
-  $('#res').innerHTML=Object.keys(cart).map(k=>`<p><span>${cart[k]} × ${items[k].n}</span><span>${money(cart[k]*items[k].p)}</span></p>`).join('')+`<p><b>Total</b><b>${money(total()[1])}</b></p>`;
-  dlg.showModal();
-};
+$('#res').addEventListener('click',e=>{
+  const b=e.target.closest('.quitar');if(!b)return;
+  const k=b.dataset.k;delete cart[k];$('#c'+k).textContent='0';pintar();pintarPedido();
+});
+$('#abrir').onclick=()=>{pintarPedido();dlg.showModal()};
 $('#cerrar').onclick=()=>dlg.close();
 $('#mod').onchange=e=>{$('#dirL').hidden=!e.target.value.startsWith('Delivery')};
 $('#enviar').onclick=()=>{
+  if(!Object.keys(cart).length)return;
   const delivery=$('#mod').value.startsWith('Delivery');
   if(!$('#nom').value.trim()){$('#nom').focus();return}
   if(delivery&&!$('#dir').value.trim()){$('#dir').focus();return}
