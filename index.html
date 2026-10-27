@@ -58,7 +58,7 @@
 <div id="barra"><div><b id="bn">0 productos</b><br><span id="bt">$0,00</span></div><button class="btn" id="abrir">Revisar y pedir</button></div>
 
 <dialog id="dlg">
-  <h2>Tu pedido</h2>
+  <div class="dlg-cabecera"><h2>Tu pedido</h2><button class="cerrar-x" id="cerrarX" type="button" aria-label="Cerrar pedido y volver al menú">×</button></div>
   <div id="res"></div>
   <label>Tu nombre<input id="nom" autocomplete="name"></label>
   <label>¿Cómo lo quieres?<select id="mod"><option>Pickup (retiro en el local)</option><option>Delivery</option></select></label>
@@ -199,11 +199,13 @@ $('#res').addEventListener('click',e=>{
   const k=b.dataset.k;delete cart[k];$('#c'+k).textContent='0';pintar();pintarPedido();
 });
 $('#abrir').onclick=()=>{pintarPedido();dlg.showModal()};
-$('#cerrar').onclick=()=>{
+function volverMenu(){
   dlg.close();
   $('#menu').scrollIntoView();
   $('#menu .q button[data-d="1"]').focus({preventScroll:true});
-};
+}
+$('#cerrar').onclick=volverMenu;
+$('#cerrarX').onclick=volverMenu;
 $('#mod').onchange=e=>{$('#dirL').hidden=!e.target.value.startsWith('Delivery')};
 $('#enviar').onclick=()=>{
   if(!Object.keys(cart).length)return;

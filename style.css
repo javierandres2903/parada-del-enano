@@ -49,6 +49,10 @@ footer{text-align:center;color:var(--g);padding:30px 16px;font-size:.9rem}
 dialog{width:min(480px,94vw);max-height:92vh;border:0;border-radius:14px;padding:20px;background:var(--bg);color:var(--ink)}
 dialog::backdrop{background:rgba(0,0,0,.6)}
 dialog h2{font-size:1.5rem;margin-bottom:10px}
+.dlg-cabecera{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.dlg-cabecera h2{margin-bottom:0}
+.cerrar-x{flex:none;width:40px;height:40px;border:0;border-radius:50%;background:var(--line);color:var(--ink);font:700 1.6rem/1 'Barlow',sans-serif;cursor:pointer}
+.cerrar-x:focus-visible{outline:3px solid var(--r);outline-offset:2px}
 label{display:block;font-weight:600;margin-top:12px}
 input,select,textarea{width:100%;font:inherit;padding:10px;margin-top:4px;border:2px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
 #res{margin:12px 0;padding:10px;background:var(--card);border-radius:8px;font-size:.95rem;max-height:150px;overflow:auto}
